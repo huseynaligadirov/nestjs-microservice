@@ -26,6 +26,8 @@ services:
       - app-network
 
   user-ms:
+    ports: 
+      - 127.0.0.1:3000:3000/tcp
     build:
       args:
         APP_NAME: users
@@ -45,6 +47,8 @@ services:
       - app-network
 
   order-ms:
+    ports: 
+      - 127.0.0.1:3001:3001/tcp
     build:
       args:
         APP_NAME: orders
