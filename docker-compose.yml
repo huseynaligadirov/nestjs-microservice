@@ -1,0 +1,68 @@
+services:
+  db:
+    ports:
+      - 127.0.0.1:5432:5432/tcp
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./db:/var/lib/postgresql/data
+      - ./init/db.sh:/docker-entrypoint-initdb.d/db.sh:ro
+    networks:
+      - app-network
+
+  queue:
+    ports:
+      - 127.0.0.1:5672:5672
+    image: rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    networks:
+      - app-network
+
+  user-ms:
+    build:
+      args:
+        APP_NAME: users
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_USERS_DB}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PAsSWORD: ${RABBITMQ_PASS}
+      RABBITMQ_QUEUE: ${RABBITMQ_USERS_QUEUE}
+    networks:
+      - app-network
+
+  order-ms:
+    build:
+      args:
+        APP_NAME: orders
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_ORDERS_DB}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PAsSWORD: ${RABBITMQ_PASS}
+      RABBITMQ_QUEUE: ${RABBITMQ_ORDERS_QUEUE}
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
