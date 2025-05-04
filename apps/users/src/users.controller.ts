@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 import { LoginDto } from './dto/login.dto';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller('users')
 export class UsersController {
@@ -14,36 +14,18 @@ export class UsersController {
   }
 
   @Post('login')
-  login(@Body() loginDto: LoginDto) {
+  async login(@Body() loginDto: LoginDto) {
     return this.userService.login(loginDto);
   }
 
-  // @MessagePattern({ cmd: 'create_user' })
-  // create(@Payload() createUserDto: CreateUserDto) {
-  //   return this.userService.create(createUserDto);
-  // }
-
-  @MessagePattern({ cmd: 'get_user' })
-  findOne(@Payload() id: string) {
-    return this.userService.findOne(id);
+  @Get(':id')
+  async getUserById(@Param('id') id: string) {
+    return this.userService.findById(id)
   }
 
-
-  @Get('sum')
-  async getSum(): Promise<number> {
-    const numbers = [1, 2, 3, 4];
-    return this.userService.sendSum(numbers);
+  @MessagePattern('verify-jwt')
+  async verifyJwt(@Payload() data: { token: string }) {
+    return this.userService.verifyJwt(data.token)
   }
-  @Get('hello')
-  async hellooo() {
-    return this.userService.hello()
-  }
-
-  @MessagePattern({ cmd: 'sum' }) // <== Must match exactly
-  accumulate(data: number[]): number {
-    return data.reduce((a, b) => a + b, 0);
-  }
-
-
 
 }

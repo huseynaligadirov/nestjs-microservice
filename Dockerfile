@@ -16,10 +16,10 @@ FROM base AS builder
 
 ARG APP_NAME
 
-COPY . .
-
 # Reuse installed deps
 COPY --from=deps /app/node_modules ./node_modules
+
+COPY . .
 
 # Build the whole monorepo (tsconfig paths resolve shared libs)
 RUN yarn build:$APP_NAME

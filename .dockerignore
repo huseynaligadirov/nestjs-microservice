@@ -1,4 +1,12 @@
+.gitignore
+.dockerignore
+Dockerfile
+init
+db
 node_modules
 dist
 .env
+.env.example
 .env.prod
+README.md
+restart.txt

@@ -1,8 +1,9 @@
 services:
   db:
     ports:
-      - 127.0.0.1:5432:5432/tcp
+      - 127.0.0.1:${POSTGRES_PORT}:${POSTGRES_PORT}/tcp
     image: postgres
+    hostname: ${POSTGRES_HOST}
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -16,18 +17,22 @@ services:
 
   queue:
     ports:
-      - 127.0.0.1:5672:5672
+      - 127.0.0.1:${RABBITMQ_PORT}:${RABBITMQ_PORT}
     image: rabbitmq
+    hostname: ${RABBITMQ_HOST}
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     networks:
       - app-network
 
   user-ms:
     ports: 
-      - 127.0.0.1:3000:3000/tcp
+      - 127.0.0.1:3001:3001/tcp
+    depends_on:
+      - db
+      - queue
     build:
       args:
         APP_NAME: users
@@ -41,14 +46,18 @@ services:
       RABBITMQ_HOST: ${RABBITMQ_HOST}
       RABBITMQ_PORT: ${RABBITMQ_PORT}
       RABBITMQ_USER: ${RABBITMQ_USER}
-      RABBITMQ_PAsSWORD: ${RABBITMQ_PASS}
-      RABBITMQ_QUEUE: ${RABBITMQ_USERS_QUEUE}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_USERS_QUEUE: ${RABBITMQ_USERS_QUEUE}
+      JWT_SECRET: ${JWT_SECRET}
     networks:
       - app-network
 
   order-ms:
     ports: 
-      - 127.0.0.1:3001:3001/tcp
+      - 127.0.0.1:3002:3002/tcp
+    depends_on:
+      - db
+      - queue
     build:
       args:
         APP_NAME: orders
@@ -62,8 +71,8 @@ services:
       RABBITMQ_HOST: ${RABBITMQ_HOST}
       RABBITMQ_PORT: ${RABBITMQ_PORT}
       RABBITMQ_USER: ${RABBITMQ_USER}
-      RABBITMQ_PAsSWORD: ${RABBITMQ_PASS}
-      RABBITMQ_QUEUE: ${RABBITMQ_ORDERS_QUEUE}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_USERS_QUEUE: ${RABBITMQ_USERS_QUEUE}
     networks:
       - app-network
 
