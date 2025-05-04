@@ -54,7 +54,7 @@
 
 ## 🔍 How to Use
 
-- Detailed information about API endoints have been given in ```Endpoints.md``` file
+- Detailed information about API endoints have been given in [Endpoints.md](https://github.com/huseynaligadirov/nestjs-microservice/blob/main/Endpoints.md) file
 
 - To run tests use command below given
 
